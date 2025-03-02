@@ -65,25 +65,34 @@ namespace AutoClickerKeyboard
             cmbProcesses.SelectionChanged += (s, e) =>
             {
                 if (cmbProcesses.SelectedItem != null)
-                    _selectedProcessName = cmbProcesses.SelectedItem.ToString();
+                    _selectedProcessName = cmbProcesses.SelectedItem.ToString() ?? string.Empty;
             };
-        }
-
-
-        private void MainWindow_Closed(object sender, EventArgs e)
-        {
-            UnhookWindowsHookEx(_hookID);
         }
 
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
         {
             using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
-            using (var curModule = curProcess.MainModule)
+                using (var curModule = curProcess.MainModule)
+                    return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(string.Empty), 0);
+        }
+
+        private void PerformClick(object? sender, ElapsedEventArgs e)
+        {
+            if (!_clickTimer.Enabled) return;
+
+            if (IsTargetProcessActive())
             {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(null), 0);
+                keybd_event(_keyToPress, 0, 0, 0); // Press button
+                keybd_event(_keyToPress, 0, 2, 0); // Release button
             }
         }
 
+        #region Events
+
+        private void MainWindow_Closed(object? sender, EventArgs e)
+        {
+            UnhookWindowsHookEx(_hookID);
+        }
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
@@ -92,7 +101,7 @@ namespace AutoClickerKeyboard
 
                 if (vkCode == 0x70 && (Keyboard.Modifiers & ModifierKeys.Control) != 0) // Ctrl + F1
                 {
-                    Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow).StartButton_Click(null, null));
+                    Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow).StartButton_Click(null, (RoutedEventArgs)EventArgs.Empty));
                 }
                 else if (vkCode == 0x71 && (Keyboard.Modifiers & ModifierKeys.Control) != 0) // Ctrl + F2
                 {
@@ -103,8 +112,7 @@ namespace AutoClickerKeyboard
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
-
-        private void StartButton_Click(object sender, RoutedEventArgs e)
+        private void StartButton_Click(object? sender, RoutedEventArgs e)
         {
             if (int.TryParse(txtTimeBetweenPresses.Text, out int interval) && interval > 0)
             {
@@ -118,17 +126,9 @@ namespace AutoClickerKeyboard
         {
             _clickTimer.Stop();
         }
+        #endregion
 
-        private void PerformClick(object sender, ElapsedEventArgs e)
-        {
-            if (!_clickTimer.Enabled) return;
-
-            if (IsTargetProcessActive())
-            {
-                keybd_event(_keyToPress, 0, 0, 0); // Press button
-                keybd_event(_keyToPress, 0, 2, 0); // Release button
-            }
-        }
+        #region Helpers
         private bool IsTargetProcessActive()
         {
             IntPtr hWnd = GetForegroundWindow();
@@ -145,5 +145,6 @@ namespace AutoClickerKeyboard
                 _keyToPress = (byte)key;
             }
         }
+        #endregion
     }
 }
