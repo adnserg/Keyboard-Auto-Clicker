@@ -11,18 +11,18 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Интервал (мс):" Margin="10"/>
-        <TextBox x:Name="IntervalTextBox" Grid.Row="0" Margin="120,10,10,10" Width="100" Text="1000"/>
+        <TextBlock Text="Time between presses (ms):" Margin="10"/>
+        <TextBox x:Name="txtTimeBetweenPresses" Grid.Row="0" Margin="120,10,10,10" Width="100" Text="1000"/>
 
-        <TextBlock Text="Клавиша:" Margin="10" Grid.Row="1"/>
-        <TextBox x:Name="KeyTextBox" Grid.Row="1" Margin="120,10,10,10" Width="100" Text="Q"/>
+        <TextBlock Text="Key:" Margin="10" Grid.Row="1"/>
+        <TextBox x:Name="txtKey" Grid.Row="1" Margin="120,10,10,10" Width="100" Text="Q"/>
 
-        <TextBlock Text="Выберите процесс:" Margin="10" Grid.Row="2"/>
-        <ComboBox x:Name="ProcessComboBox" Grid.Row="2" Margin="120,10,10,10" Width="150"/>
+        <TextBlock Text="Select process:" Margin="10" Grid.Row="2"/>
+        <ComboBox x:Name="cmbProcesses" Grid.Row="2" Margin="120,10,10,10" Width="150"/>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-            <Button x:Name="StartButton" Content="Запустить(CTRL+F1)" Width="150" Margin="5" Click="StartButton_Click"/>
-            <Button x:Name="StopButton" Content="Остановить(CTRL+F2" Width="150" Margin="5" Click="StopButton_Click"/>
+            <Button x:Name="btnStart" Content="Start(CTRL+F1)" Width="150" Margin="5" Click="StartButton_Click"/>
+            <Button x:Name="btnStop" Content="Stop(CTRL+F2" Width="150" Margin="5" Click="StopButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>

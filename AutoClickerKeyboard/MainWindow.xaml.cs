@@ -11,7 +11,7 @@ namespace AutoClickerKeyboard
     public partial class MainWindow : Window
     {
         private Timer _clickTimer;
-        private byte _keyToPress = (byte)char.ToUpper(char.Parse("Q"));// 0x41; // Код клавиши "A"
+        private byte _keyToPress = (byte)char.ToUpper(char.Parse("Q"));// 0x41; // Char code "A"
 
         private string _selectedProcessName = string.Empty;
         private static IntPtr _hookID = IntPtr.Zero;
@@ -61,11 +61,11 @@ namespace AutoClickerKeyboard
                 .Distinct()
                 .ToList();
 
-            ProcessComboBox.ItemsSource = processes;
-            ProcessComboBox.SelectionChanged += (s, e) =>
+            cmbProcesses.ItemsSource = processes;
+            cmbProcesses.SelectionChanged += (s, e) =>
             {
-                if (ProcessComboBox.SelectedItem != null)
-                    _selectedProcessName = ProcessComboBox.SelectedItem.ToString();
+                if (cmbProcesses.SelectedItem != null)
+                    _selectedProcessName = cmbProcesses.SelectedItem.ToString();
             };
         }
 
@@ -84,22 +84,6 @@ namespace AutoClickerKeyboard
             }
         }
 
-        //private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
-        //{
-        //    if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
-        //    {
-        //        int vkCode = Marshal.ReadInt32(lParam);
-        //        if ((vkCode == 0x70 && Keyboard.Modifiers.HasFlag(ModifierKeys.Control))) // Ctrl + F1
-        //        {
-        //            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow).StartButton_Click(null, null));
-        //        }
-        //        else if ((vkCode == 0x71 && Keyboard.Modifiers.HasFlag(ModifierKeys.Control))) // Ctrl + F2
-        //        {
-        //            Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow).StopButton_Click(null, null));
-        //        }
-        //    }
-        //    return CallNextHookEx(_hookID, nCode, wParam, lParam);
-        //}
         private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
@@ -113,7 +97,7 @@ namespace AutoClickerKeyboard
                 else if (vkCode == 0x71 && (Keyboard.Modifiers & ModifierKeys.Control) != 0) // Ctrl + F2
                 {
                     var mainWindow = (MainWindow)Application.Current.MainWindow;
-                    mainWindow._clickTimer.Stop(); // Немедленно останавливаем таймер
+                    mainWindow._clickTimer.Stop(); // Stop Timer Now
                 }
             }
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
@@ -122,7 +106,7 @@ namespace AutoClickerKeyboard
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            if (int.TryParse(IntervalTextBox.Text, out int interval) && interval > 0)
+            if (int.TryParse(txtTimeBetweenPresses.Text, out int interval) && interval > 0)
             {
                 _clickTimer.Interval = interval;
                 _clickTimer.Start();
@@ -137,12 +121,12 @@ namespace AutoClickerKeyboard
 
         private void PerformClick(object sender, ElapsedEventArgs e)
         {
-            if (!_clickTimer.Enabled) return; // Если таймер остановлен — выходим
+            if (!_clickTimer.Enabled) return;
 
             if (IsTargetProcessActive())
             {
-                keybd_event(_keyToPress, 0, 0, 0); // Нажатие клавиши
-                keybd_event(_keyToPress, 0, 2, 0); // Отпускание клавиши
+                keybd_event(_keyToPress, 0, 0, 0); // Press button
+                keybd_event(_keyToPress, 0, 2, 0); // Release button
             }
         }
         private bool IsTargetProcessActive()
@@ -155,9 +139,9 @@ namespace AutoClickerKeyboard
 
         private void SetKeyToPress()
         {
-            if (!string.IsNullOrEmpty(KeyTextBox.Text))
+            if (!string.IsNullOrEmpty(txtKey.Text))
             {
-                char key = char.ToUpper(KeyTextBox.Text[0]);
+                char key = char.ToUpper(txtKey.Text[0]);
                 _keyToPress = (byte)key;
             }
         }
