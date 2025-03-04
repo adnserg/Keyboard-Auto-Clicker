@@ -101,7 +101,7 @@ namespace AutoClickerKeyboard
 
                 if (vkCode == 0x70 && (Keyboard.Modifiers & ModifierKeys.Control) != 0) // Ctrl + F1
                 {
-                    Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow).StartButton_Click(null, (RoutedEventArgs)EventArgs.Empty));
+                    Application.Current.Dispatcher.Invoke(() => ((MainWindow)Application.Current.MainWindow).StartButton_Click(null, null));
                 }
                 else if (vkCode == 0x71 && (Keyboard.Modifiers & ModifierKeys.Control) != 0) // Ctrl + F2
                 {
@@ -112,7 +112,7 @@ namespace AutoClickerKeyboard
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
-        private void StartButton_Click(object? sender, RoutedEventArgs e)
+        private void StartButton_Click(object? sender, RoutedEventArgs? e)
         {
             if (int.TryParse(txtTimeBetweenPresses.Text, out int interval) && interval > 0)
             {
